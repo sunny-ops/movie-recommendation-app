@@ -16,6 +16,13 @@ public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
 
     @Override
+    public UserDto createUser(UserDto userDto) {
+        User user = UserMapper.mapToEmployee(userDto);
+        User savedUser = userRepository.save(user);
+        return UserMapper.mapToEmployeeDto(savedUser);
+    }
+
+    @Override
     public UserDto getEmployeeById(int userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() ->
@@ -23,4 +30,13 @@ public class UserServiceImpl implements UserService {
 
         return UserMapper.mapToEmployeeDto(user);
     }
+
+    @Override
+    public void deleteUser(int userId) {
+        User user = userRepository.findById(userId).orElseThrow(
+                ()-> new ResourceNotFoundException("Employee is not exists with given id: " + userId)
+        );
+        userRepository.deleteById(userId);
+    }
+
 }

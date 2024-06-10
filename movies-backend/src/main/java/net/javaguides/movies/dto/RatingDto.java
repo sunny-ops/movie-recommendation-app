@@ -11,6 +11,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class RatingDto {
     private int id;
-    private String firstName;
-    private String lastName;
+    private int userId;
+    private int movieId;
+    private double rating;
 }

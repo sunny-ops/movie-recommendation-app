@@ -2,73 +2,134 @@
 from sklearn.feature_extraction.text import TfidfVectorizer
 import pandas as pd
 from sklearn.metrics.pairwise import linear_kernel
+import numpy as np
+# Parse the stringified features into their corresponding python objects
+from ast import literal_eval
+
 
 # Sample data
 # Load Movies Metadata
-data = pd.read_csv('movies_metadata.csv', low_memory=False)
+metadata = pd.read_csv('/users/shi/Downloads/movieMeta/movies_metadata.csv', low_memory=False)
+# metadata = pd.DataFrame(metadata)
 
-# data = {
-#     'overview': [
-#         'The quick brown fox',
-#         'The quick brown dog',
-#         'The lazy dog'
-#     ]
-# }
-metadata = pd.DataFrame(data)
+# Load keywords and credits
+credits = pd.read_csv('/users/shi/Downloads/movieMeta/credits.csv')
+keywords = pd.read_csv('/users/shi/Downloads/movieMeta/keywords.csv')
 
-# 1. Initialize TfidfVectorizer
-tfidf = TfidfVectorizer(stop_words='english')
+# Remove rows with bad IDs.
+metadata = metadata.drop([19730, 29503, 35587])
 
-# Replace NaN with an empty string
-metadata['overview'] = metadata['overview'].fillna('')
 
-# Fit and transform the data
-tfidf_matrix = tfidf.fit_transform(metadata['overview'])
+# Convert IDs to int. Required for merging
+keywords['id'] = keywords['id'].astype('int')
+credits['id'] = credits['id'].astype('int')
+metadata['id'] = metadata['id'].astype('int')
 
-print(tfidf_matrix.shape)
-# 2. Compute the cosine similarity matrix
-cosine_sim = linear_kernel(tfidf_matrix, tfidf_matrix)
-print(cosine_sim.shape)
-print(cosine_sim[1])
+# Merge keywords and credits into your main metadata dataframe
+metadata = metadata.merge(credits, on='id')
+metadata = metadata.merge(keywords, on='id')
 
-# 3. recommend 10 similar movies
-#Construct a reverse map of indices and movie titles
-indices = pd.Series(metadata.index, index=metadata['title']).drop_duplicates()
-print(indices[:10])
-
-# Function that takes in movie title as input and outputs most similar movies
-def get_recommendations(title, cosine_sim=cosine_sim):
-    # Get the index of the movie that matches the title
-    idx = indices[title]
-
-    # Get the pairwsie similarity scores of all movies with that movie
-    sim_scores = list(enumerate(cosine_sim[idx]))
-
-    # Sort the movies based on the similarity scores
-    sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
-
-    # Get the scores of the 10 most similar movies
-    sim_scores = sim_scores[1:11]
-
-    # Get the movie indices
-    movie_indices = [i[0] for i in sim_scores]
-
-    # Return the top 10 most similar movies
-    return metadata['title'].iloc[movie_indices]
-
-print(get_recommendations('The Dark Knight Rises'))
+print(metadata.head(2))
 
 
 
+features = ['cast', 'crew', 'keywords', 'genres']
+for feature in features:
+    metadata[feature] = metadata[feature].apply(literal_eval)
 
-# # Convert to dense array and view
-# dense_tfidf_matrix = tfidf_matrix.toarray()
-# print(dense_tfidf_matrix)
 
-# # View feature names
-# feature_names = tfidf.get_feature_names_out()
-# print(feature_names)
+def get_director(x):
+    for i in x:
+        if i['job'] == 'Director':
+            return i['name']
+    return np.nan
 
-# # Convert to DataFrame for easier inspection
-# tfidf_df = pd.DataFrame(dense_tfidf_matrix, columns=feature_names)
-# print(tfidf_df)
+def get_list(x):
+    if isinstance(x, list):
+        names = [i['name'] for i in x]
+        #Check if more than 3 elements exist. If yes, return only first three. If no, return entire list.
+        if len(names) > 3:
+            names = names[:3]
+        return names
+
+    #Return empty list in case of missing/malformed data
+    return []
+
+# Define new director, cast, genres and keywords features that are in a suitable form.
+metadata['director'] = metadata['crew'].apply(get_director)
+
+features = ['cast', 'keywords', 'genres']
+for feature in features:
+    metadata[feature] = metadata[feature].apply(get_list)
+
+# Print the new features of the first 3 films
+print(metadata[['title', 'cast', 'director', 'keywords', 'genres']].head(3))
+
+# Function to convert all strings to lower case and strip names of spaces
+def clean_data(x):
+    if isinstance(x, list):
+        return [str.lower(i.replace(" ", "")) for i in x]
+    else:
+        #Check if director exists. If not, return empty string
+        if isinstance(x, str):
+            return str.lower(x.replace(" ", ""))
+        else:
+            return ''
+
+# Apply clean_data function to your features.
+features = ['cast', 'keywords', 'director', 'genres']
+
+for feature in features:
+    metadata[feature] = metadata[feature].apply(clean_data)
+
+def create_soup(x):
+    return ' '.join(x['keywords']) + ' ' + ' '.join(x['cast']) + ' ' + x['director'] + ' ' + ' '.join(x['genres'])
+
+# Create a new soup feature
+metadata['soup'] = metadata.apply(create_soup, axis=1)
+
+print(metadata[['soup']].head(2))
+# # 1. Initialize TfidfVectorizer
+# tfidf = TfidfVectorizer(stop_words='english')
+
+# # Replace NaN with an empty string
+# metadata['overview'] = metadata['overview'].fillna('')
+
+# # Fit and transform the data
+# tfidf_matrix = tfidf.fit_transform(metadata['overview'])
+
+# print(tfidf_matrix.shape)
+# # 2. Compute the cosine similarity matrix
+# cosine_sim = linear_kernel(tfidf_matrix, tfidf_matrix)
+# print(cosine_sim.shape)
+# print(cosine_sim[1])
+
+# # 3. recommend 10 similar movies
+# #Construct a reverse map of indices and movie titles
+# indices = pd.Series(metadata.index, index=metadata['title']).drop_duplicates()
+# print(indices[:10])
+
+# # Function that takes in movie title as input and outputs most similar movies
+# def get_recommendations(title, cosine_sim=cosine_sim):
+#     # Get the index of the movie that matches the title
+#     idx = indices[title]
+
+#     # Get the pairwsie similarity scores of all movies with that movie
+#     sim_scores = list(enumerate(cosine_sim[idx]))
+
+#     # Sort the movies based on the similarity scores
+#     sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
+
+#     # Get the scores of the 10 most similar movies
+#     sim_scores = sim_scores[1:11]
+
+#     # Get the movie indices
+#     movie_indices = [i[0] for i in sim_scores]
+
+#     # Return the top 10 most similar movies
+#     return metadata['title'].iloc[movie_indices]
+
+# print(get_recommendations('The Dark Knight Rises'))
+
+
+

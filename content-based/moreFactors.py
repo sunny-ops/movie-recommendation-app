@@ -109,6 +109,10 @@ cosine_sim = linear_kernel(tfidf_matrix, tfidf_matrix)
 cosine_sim2 = cosine_similarity(count_matrix, count_matrix)
 print(cosine_sim.shape)
 print(cosine_sim[1])
+cosine_sim = pd.DataFrame(cosine_sim)
+cosine_sim2 = pd.DataFrame(cosine_sim2)
+# cosine_sim2.to_csv('cosine_sim2.csv', index=False)
+# cosine_sim.to_csv('cosine_sim.csv', index=False)
 
 # 3. recommend 10 similar movies
 #Construct a reverse map of indices and movie titles
@@ -136,12 +140,46 @@ def get_recommendations(title, cosine_sim=cosine_sim):
     # Return the top 10 most similar movies
     return metadata['title'].iloc[movie_indices]
 
+def get_recommendations2(idx, cosine_sim=cosine_sim):
+    # Get the index of the movie that matches the title
+
+    # Get the pairwsie similarity scores of all movies with that movie
+    sim_scores = list(enumerate(cosine_sim[idx]))
+
+    # Sort the movies based on the similarity scores
+    sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
+
+    # Get the scores of the 10 most similar movies
+    sim_scores = sim_scores[1:11]
+
+    # Get the movie indices
+    movie_indices = [i[0] for i in sim_scores]
+
+    # Return the top 10 most similar movies
+    return metadata['title'].iloc[movie_indices]
+
 print(get_recommendations('The Dark Knight Rises', cosine_sim2))
+print(get_recommendations2(5, cosine_sim2))
+
+recommendations = []
+# 对每个电影生成推荐
+for idx in range(metadata.shape[0]):
+    recommended_titles = get_recommendations2(idx, cosine_sim2)
+    # 将推荐列表转换为字符串格式并添加到列表中
+    recommendations.append({'title': metadata['title'].iloc[idx], 'recommendations': str(recommended_titles)})
+
+# 将推荐结果转换为 DataFrame
+recommendations_df = pd.DataFrame(recommendations)
+
+print(recommendations_df.head(3))
+# 将结果保存到 CSV 文件
+recommendations_df.to_csv('movie_recommendations_all.csv', index=False)
 
 # recommendations = []
 
-# for title in metadata['title']:
-#     recommended_titles = get_recommendations(title)
+# for title in metadata['title'].head(10):
+#     print("title", title)
+#     recommended_titles = get_recommendations(title, cosine_sim2)
 #     recommendations.append({'title': title, 'recommendations': recommended_titles})
 
 # recommendations_df = pd.DataFrame(recommendations)

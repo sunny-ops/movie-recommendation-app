@@ -25,6 +25,7 @@ public class RecommendationServiceImpl implements RecommendationService {
         Recommendation recommendation = recommendationRepository.findById(recommendationId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Recommendation is not exists with given id : " + recommendationId));
+//        System.out.println(recommendation.getRecommends());
 
         return RecommendationMapper.mapToRecommendationDto(recommendation);
     }

@@ -1,24 +1,41 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { listReviews } from "../Services/MovieService";
-import { useParams } from "react-router-dom";
+import { listReviews, listRecommends } from "../Services/MovieService";
+import { useParams, useLocation } from "react-router-dom";
 
 function ListMovieComponent() {
   const { userId } = useParams();
   const [movies, setMovies] = useState([]);
   const navigator = useNavigate();
+  let apiEndpoint;
   useEffect(() => {
+    // Determine API endpoint based on current path
+    if (location.pathname.startsWith("/reviews")) {
+      apiEndpoint = "reviews";
+    } else if (location.pathname.startsWith("/recommends")) {
+      apiEndpoint = "recommends";
+    }
     getAllMovies(userId);
   }, []);
 
   function getAllMovies(userId) {
-    listReviews(userId)
-      .then((response) => {
-        setMovies(response.data);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+    if (apiEndpoint == "reviews") {
+      listReviews(userId)
+        .then((response) => {
+          setMovies(response.data);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    } else if (apiEndpoint == "recommends") {
+      listRecommends(userId)
+        .then((response) => {
+          setMovies(response.data);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    }
   }
 
   function addNewMovie() {

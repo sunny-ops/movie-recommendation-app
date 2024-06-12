@@ -14,7 +14,11 @@ function App() {
           <Route path="/:userId" element={<ListMovieComponent />}></Route>
           {/* // http://localhost:3000/employees*/}
           <Route
-            path="/employees/:userId"
+            path="/reviews/:userId"
+            element={<ListMovieComponent />}
+          ></Route>
+          <Route
+            path="/recommends/:userId"
             element={<ListMovieComponent />}
           ></Route>
           {/* // http://localhost:3000/add-employee*/}

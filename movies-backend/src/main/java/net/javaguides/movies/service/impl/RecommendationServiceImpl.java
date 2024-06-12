@@ -40,7 +40,7 @@ public class RecommendationServiceImpl implements RecommendationService {
         Recommendation recommendation = recommendationRepository.findById(recommendationId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Recommendation is not exists with given id : " + recommendationId));
-        System.out.println(recommendation.getRecommends());
+//        System.out.println(recommendation.getRecommends());
         return RecommendationMapper.mapToRecommendationDto(recommendation);
     }
 
@@ -53,7 +53,6 @@ public class RecommendationServiceImpl implements RecommendationService {
         List<Integer> integers = extractIntegers(recommends);
         List<MovieDto> movieDtos = new ArrayList<>();
 
-        System.out.println(integers);
         for(int value: integers) {
             Movie movie = movieRepository.findById(value)
                     .orElseThrow(() ->

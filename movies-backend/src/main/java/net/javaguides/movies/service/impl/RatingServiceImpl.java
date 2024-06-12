@@ -51,8 +51,7 @@ public class RatingServiceImpl implements RatingService {
                 .limit(top10PercentCount)
                 .map(Rating::getMovieId)
                 .collect(Collectors.toList());
-        System.out.println("top10");
-        System.out.println(top10PercentMovieIds);
+
 
         List<MovieDto> movieDtos = new ArrayList<>();
         for(int movieId: top10PercentMovieIds) {
@@ -62,7 +61,7 @@ public class RatingServiceImpl implements RatingService {
             String recommends = recommendation.getRecommends();
             List<Integer> integers = extractIntegers(recommends);
 
-            System.out.println(integers);
+//            System.out.println(integers);
             for(int value: integers) {
                 Movie movie = movieRepository.findById(value)
                         .orElseThrow(() ->
@@ -70,9 +69,14 @@ public class RatingServiceImpl implements RatingService {
                 movieDtos.add(MovieMapper.mapToMovieDto(movie));
             }
 
-        }
 
-        return movieDtos;
+        }
+        List<MovieDto> topTenMovies = movieDtos.stream()
+                .sorted(Comparator.comparingDouble(MovieDto::getVoteAverage).reversed())
+                .limit(10)
+                .collect(Collectors.toList());
+
+        return topTenMovies;
     }
 
 

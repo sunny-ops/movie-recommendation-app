@@ -65,7 +65,7 @@ public class RatingServiceImpl implements RatingService {
             for(int value: integers) {
                 Movie movie = movieRepository.findById(value)
                         .orElseThrow(() ->
-                                new ResourceNotFoundException("User is not exists with given id : " + value));
+                                new ResourceNotFoundException("Movie is not exists with given id : " + value));
                 movieDtos.add(MovieMapper.mapToMovieDto(movie));
             }
 
@@ -77,6 +77,21 @@ public class RatingServiceImpl implements RatingService {
                 .collect(Collectors.toList());
 
         return topTenMovies;
+    }
+
+    @Override
+    public List<MovieDto> getAllReviewedMoviesByUserId(int userId) {
+        List<Rating> ratings = ratingRepository.findByUserId(userId);
+        List<MovieDto> movieDtos = new ArrayList<>();
+        for(Rating rating: ratings) {
+            int movieId = rating.getMovieId();
+            Movie movie = movieRepository.findById(movieId)
+                    .orElseThrow(() ->
+                            new ResourceNotFoundException("Movie is not exists with given id : " + movieId));
+            movieDtos.add(MovieMapper.mapToMovieDto(movie));
+
+        }
+        return movieDtos;
     }
 
 

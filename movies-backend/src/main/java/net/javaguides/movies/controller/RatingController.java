@@ -19,7 +19,7 @@ public class RatingController {
     private RatingService ratingService;
 
 
-    // Build Get by userId REST API
+    // Build Get Ratings by userId REST API
     @GetMapping("{id}")
     public ResponseEntity<List<RatingDto>> getEmployeeById(@PathVariable("id") int userId) {
         List<RatingDto> ratingDtos = ratingService.getAllRatingsById(userId);
@@ -27,9 +27,16 @@ public class RatingController {
     }
 
     // Build Get Recommended Movies by userId REST API
-    @GetMapping("/movies/{id}")
+    @GetMapping("/recommends/{id}")
     public ResponseEntity<List<MovieDto>> getAllRecommendedMoviesByUserId(@PathVariable("id") int userId) {
         List<MovieDto> movieDtos = ratingService.getAllRecommendedMoviesByUserId(userId);
+        return ResponseEntity.ok(movieDtos);
+    }
+
+    // Build Get Reviewed Movies by userId REST API
+    @GetMapping("/reviews/{id}")
+    public ResponseEntity<List<MovieDto>> getAllReviewedMoviesByUserId(@PathVariable("id") int userId) {
+        List<MovieDto> movieDtos = ratingService.getAllReviewedMoviesByUserId(userId);
         return ResponseEntity.ok(movieDtos);
     }
 

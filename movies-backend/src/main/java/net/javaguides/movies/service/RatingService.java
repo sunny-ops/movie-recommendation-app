@@ -10,6 +10,7 @@ public interface RatingService {
 
     List<RatingDto> getAllRatingsById(int userId);
     List<MovieDto> getAllRecommendedMoviesByUserId(int userId);
+    List<MovieDto> getAllReviewedMoviesByUserId(int userId);
 
 
 }

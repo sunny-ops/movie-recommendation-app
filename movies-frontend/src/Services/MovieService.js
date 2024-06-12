@@ -2,8 +2,8 @@ import axios from "axios";
 
 const REST_API_BASE_URL = "http://localhost:8080/api/ratings";
 
-export const listReviews = () => {
-  return axios.get(REST_API_BASE_URL + "/reviews/1");
+export const listReviews = (userId) => {
+  return axios.get(REST_API_BASE_URL + "/reviews/" + userId);
 };
 
 // export const createEmployee = (employee) =>

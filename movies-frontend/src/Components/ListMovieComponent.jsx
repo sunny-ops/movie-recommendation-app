@@ -1,16 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { listReviews } from "../Services/MovieService";
+import { useParams } from "react-router-dom";
 
 function ListMovieComponent() {
+  const { userId } = useParams();
   const [movies, setMovies] = useState([]);
   const navigator = useNavigate();
   useEffect(() => {
-    getAllMovies();
+    getAllMovies(userId);
   }, []);
 
-  function getAllMovies() {
-    listReviews()
+  function getAllMovies(userId) {
+    listReviews(userId)
       .then((response) => {
         setMovies(response.data);
       })

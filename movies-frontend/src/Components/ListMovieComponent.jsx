@@ -22,7 +22,7 @@ function ListMovieComponent() {
     }
     getAllMovies(userId); // 是一个异步
     getAllRatings(userId);
-  }, []);
+  }, [location.pathname]);
 
   useEffect(() => {
     getAllMovies(userId);
@@ -65,7 +65,7 @@ function ListMovieComponent() {
     if (location.pathname.startsWith("/reviews")) {
       return "List of Reviewed Movies";
     } else if (location.pathname.startsWith("/recommends")) {
-      return "List of Recommended Movies";
+      return "List of 10 Recommended Movies";
     } else {
       return "List of Movies";
     }
@@ -81,6 +81,14 @@ function ListMovieComponent() {
     }
   };
 
+  function navToRecommends(userId) {
+    navigator(`/recommends/${userId}`);
+  }
+
+  function navToReviews(userId) {
+    navigator(`/reviews/${userId}`);
+  }
+
   function addNewMovie() {
     // navigator("/add-employee");
   }
@@ -90,17 +98,33 @@ function ListMovieComponent() {
   function removeMovie(id) {}
 
   // Function to find rating for a given movieId
+  // const findRating = (movieId) => {
+  //   const rating = ratings.find((r) => r.movieId === movieId);
+  //   return rating ? rating.rating : "N/A"; // Return 'N/A' if no rating found
+  // };
+
   const findRating = (movieId) => {
-    const rating = ratings.find((r) => r.movieId === movieId);
-    return rating ? rating.rating : "N/A"; // Return 'N/A' if no rating found
+    let rating, movie;
+    if (apiEndpoint == "reviews") {
+      rating = ratings.find((r) => r.movieId === movieId);
+      return rating ? rating.rating : "N/A";
+    } else {
+      movie = movies.find((r) => r.movieId === movieId);
+      return movie ? movie.voteAverage : "N/A";
+    }
   };
 
   return (
     <div className="container">
-      <h2 className="text-center mt-2">{getTitle()}</h2>
-      <button className="btn btn-primary mb-2" onClick={addNewMovie}>
+      <h2 className="text-center mt-5 mb-5">{getTitle()}</h2>
+      {/* <button className="btn btn-primary mb-2" onClick={addNewMovie}>
         Add Reviews
-      </button>
+      </button> */}
+      {apiEndpoint === "reviews" && (
+        <button className="btn btn-primary mb-2" onClick={addNewMovie}>
+          Add Reviews
+        </button>
+      )}
       <table className="table table-striped table-bordered">
         <thead>
           <tr>
@@ -108,7 +132,7 @@ function ListMovieComponent() {
             <th>Movie Title</th>
             <th>Language</th>
             <th>Rating</th>
-            <th>Actions</th>
+            {apiEndpoint === "reviews" && <th>Actions</th>}
           </tr>
         </thead>
         <tbody>
@@ -119,25 +143,35 @@ function ListMovieComponent() {
               <td>{movie.language}</td>
               {/* <td>{movie.voteAverage}</td> */}
               <td>{findRating(movie.movieId)}</td>
-              <td>
-                <button
-                  className="btn btn-info"
-                  onClick={() => updateMovie(movie.movieId)}
-                >
-                  Update
-                </button>
-                <button
-                  className="btn btn-danger"
-                  onClick={() => removeMovie(movie.movieId)}
-                >
-                  Delete
-                </button>
-              </td>
+              {apiEndpoint ===
+                "reviews" /* Conditionally render Actions column content */ && (
+                <td>
+                  <button
+                    className="btn btn-info"
+                    onClick={() => updateMovie(movie.movieId)}
+                  >
+                    Update
+                  </button>
+                  <button
+                    className="btn btn-danger"
+                    onClick={() => removeMovie(movie.movieId)}
+                  >
+                    Delete
+                  </button>
+                </td>
+              )}
             </tr>
           ))}
         </tbody>
       </table>
-      <button className="btn btn-primary mb-2" onClick={addNewMovie}>
+      <button
+        className="btn btn-primary mb-5"
+        onClick={() =>
+          apiEndpoint == "reviews"
+            ? navToRecommends(userId)
+            : navToReviews(userId)
+        }
+      >
         {getButtonValue()}
       </button>
     </div>

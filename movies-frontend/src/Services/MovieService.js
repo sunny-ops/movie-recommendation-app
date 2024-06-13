@@ -10,6 +10,9 @@ export const listRecommends = (userId) => {
   return axios.get(REST_API_BASE_URL + "/recommends/" + userId);
 };
 
+export const listRatings = (userId) => {
+  return axios.get(REST_API_BASE_URL + "/" + userId);
+};
 // export const createEmployee = (employee) =>
 //   axios.post(REST_API_BASE_URL, employee);
 

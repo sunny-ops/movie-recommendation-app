@@ -1,25 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { listReviews, listRecommends } from "../Services/MovieService";
+import {
+  listReviews,
+  listRecommends,
+  listRatings,
+} from "../Services/MovieService";
 import { useParams, useLocation } from "react-router-dom";
 
 function ListMovieComponent() {
   const { userId } = useParams();
   const [movies, setMovies] = useState([]);
+  const [ratings, setRatings] = useState([]);
   const navigator = useNavigate();
   const [apiEndpoint, setApiEndpoint] = useState("");
-  // let apiEndpoint;
-  // useEffect(() => {
-  //   // Determine API endpoint based on current path
-  //   if (location.pathname.startsWith("/reviews")) {
-  //     // setApiEndpoint("reviews");
-  //     apiEndpoint = "reviews";
-  //   } else if (location.pathname.startsWith("/recommends")) {
-  //     // setApiEndpoint("recommends");
-  //     apiEndpoint = "recommends";
-  //   }
-  //   getAllMovies(userId);
-  // }, []);
 
   useEffect(() => {
     if (location.pathname.startsWith("/reviews")) {
@@ -27,11 +20,17 @@ function ListMovieComponent() {
     } else if (location.pathname.startsWith("/recommends")) {
       setApiEndpoint("recommends");
     }
+    getAllMovies(userId); // 是一个异步
+    getAllRatings(userId);
+  }, []);
+
+  useEffect(() => {
     getAllMovies(userId);
-  }, [apiEndpoint]);
+    getAllRatings(userId);
+  }, [apiEndpoint, userId]);
 
   function getAllMovies(userId) {
-    console.log("apiEndpoint", apiEndpoint);
+    // console.log("apiEndpoint", apiEndpoint);
     if (apiEndpoint == "reviews") {
       listReviews(userId)
         .then((response) => {
@@ -49,6 +48,16 @@ function ListMovieComponent() {
           console.error(error);
         });
     }
+  }
+
+  function getAllRatings(userId) {
+    listRatings(userId)
+      .then((response) => {
+        setRatings(response.data);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
   }
 
   // Determine the title based on the path
@@ -69,8 +78,6 @@ function ListMovieComponent() {
       return "Recommend 10 Movies for me";
     } else if (apiEndpoint == "recommends") {
       return "Go Back to my Reviews";
-    } else {
-      return "hehe";
     }
   };
 
@@ -81,6 +88,12 @@ function ListMovieComponent() {
   function updateMovie(id) {}
 
   function removeMovie(id) {}
+
+  // Function to find rating for a given movieId
+  const findRating = (movieId) => {
+    const rating = ratings.find((r) => r.movieId === movieId);
+    return rating ? rating.rating : "N/A"; // Return 'N/A' if no rating found
+  };
 
   return (
     <div className="container">
@@ -104,7 +117,8 @@ function ListMovieComponent() {
               <td>{movie.movieId}</td>
               <td>{movie.title}</td>
               <td>{movie.language}</td>
-              <td>{movie.voteAverage}</td>
+              {/* <td>{movie.voteAverage}</td> */}
+              <td>{findRating(movie.movieId)}</td>
               <td>
                 <button
                   className="btn btn-info"

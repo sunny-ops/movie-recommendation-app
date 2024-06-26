@@ -29,19 +29,23 @@ It's a full-stack personalized movie recommendation application with responsive 
 
 Clone this repo,
 ```bash
-git clone https://github.com/kilgarenone/boileroom.git
+git clone https://github.com/sunny-ops/movie-recommendation-app.git
 ```
 
 Then enter the directory of the repo:
 
 ```bash
-cd boileroom
+cd movie-recommendation-app
 ```
 
 Install npm packages for both client and server:
 
 ```bash
 npm install
+npm install bootstrap --save
+npm install react-router-dom
+npm install axios
+npm install react-hook-form
 ```
 
 Start the full-stack development environment:
@@ -50,8 +54,8 @@ Start the full-stack development environment:
 npm run dev
 ```
 
-- **Client** will be at `localhost:8008`
-- **Server** is at `localhost:4000`
+- **Client** will be at `localhost:8080`
+- **Server** is at `localhost:3360`
 
 
 

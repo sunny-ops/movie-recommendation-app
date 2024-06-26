@@ -13,16 +13,16 @@ It's a full-stack personalized movie recommendation application with responsive 
 ## Used Technologies & Tools
 
 ### Front-end
-- React.
-- Bootstrap.
+- React
+- Bootstrap
 
 ### Back-end
-- SpringBoot [Java 8].
-- Spring Security (Authentication & JWT).
-- Maven.
+- SpringBoot [Java 8]
+- Spring Security (Authentication & JWT)
+- Maven
 
 ### Database
-- MySQL.
+- MySQL
 - TMDB API
 
 ## Development
